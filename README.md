@@ -1,56 +1,78 @@
-# Welcome to your Expo app 👋
+# 🏙️ ZELA - Zeladoria Urbana Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+O **ZELA** é um aplicativo mobile desenvolvido com React Native e Expo, projetado para permitir que cidadãos relatem problemas urbanos (como buracos na via, iluminação pública deficiente e lixo irregular) de forma simples, rápida e acessível.
 
-## Get started
+---
 
-1. Install dependencies
+## 🛠️ Tecnologias Utilizadas
 
-   ```bash
-   npm install
-   ```
+- **Framework:** [React Native](https://reactnative.dev/)
+- **Plataforma & Execução:** [Expo](https://expo.dev/) (SDK 51+)
+- **Roteamento:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+- **Linguagem:** JavaScript (ES6+)
+- **Ícones & Vetores:** `@expo/vector-icons` e `react-native-svg`
+- **Animações:** `Animated` API (Native Driver)
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🏗️ Arquitetura do Projeto (MVC)
 
-In the output, you'll find options to open the app in a
+O projeto adota o padrão de arquitetura **MVC (Model-View-Controller)**:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+src/
+├── app/              # VIEW / CONTROLLER: Telas e gerenciamento de rotas
+│   ├── _layout.jsx   # Configuração do Stack Navigation
+│   ├── index.jsx     # Tela de Boas-Vindas (Welcome)
+│   ├── login.jsx     # Tela de Autenticação
+│   └── cadastro.jsx  # Tela de Registro de Usuário
+└── components/       # VIEW: Componentes reutilizáveis (Ilustrações SVG, etc.)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🚀 Como Instalar e Rodar Localmente
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Siga os passos abaixo para executar o aplicativo em ambiente de desenvolvimento local.
 
-## Learn more
+### 📋 Pré-requisitos
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js instalado na máquina (versão 18 LTS ou superior).
+- Aplicativo Expo Go instalado no seu celular (disponível na Google Play Store ou App Store).
+- O computador e o celular devem estar conectados à mesma rede Wi-Fi.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 📥 Passo a Passo
 
-## Join the community
+**1. Clonar o repositório:**
 
-Join our community of developers creating universal apps.
+```bash
+git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**2. Acessar a pasta do projeto:**
+
+```bash
+cd SEU-REPOSITORIO
+```
+
+**3. Instalar as dependências do projeto:**
+
+```bash
+npm install
+```
+
+**4. Iniciar o servidor do Expo:**
+
+```bash
+npx expo start
+```
+
+**5. Executar no Celular (Expo Go):**
+
+- Abra o app Expo Go no seu dispositivo móvel.
+- Escaneie o QR Code exibido no terminal (no Android, use o scanner do Expo Go; no iOS, use a Câmera nativa).
+
+> 💡 **Dica de Solução de Problemas:** Se houver erros de cache ou alteração brusca de componentes, inicie o servidor limpando o cache com:
+> ```bash
+> npx expo start -c
+> ```
