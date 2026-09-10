@@ -1,80 +1,105 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Platform,
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  SafeAreaView, StatusBar, Platform, Alert, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import { authService } from '../services/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
+
+  const [identificador, setIdentificador] = useState('');
+  const [senha, setSenha] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  async function handleLogin() {
+    if (!identificador || !senha) {
+      Alert.alert('Atenção', 'Preencha todos os campos');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await authService.login({ identificador, senha });
+      router.replace('/');
+    } catch (error) {
+      Alert.alert('Erro ao entrar', error.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.container}>
-        
-        {/* Cabeçalho com Voltar + Logo Centralizada */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1E1E1E" />
           </TouchableOpacity>
-
           <View style={styles.logoBadge}>
             <Text style={styles.logoBadgeText}>ZELA</Text>
           </View>
-
-          {/* Espaçador invisível para manter a logo perfeitamente no centro */}
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Conteúdo do Formulário */}
         <View style={styles.content}>
           <Text style={styles.title}>Acessar a Conta</Text>
 
           <View style={styles.inputContainer}>
             <Feather name="mail" size={20} color="#00C5D6" style={styles.icon} />
-            <TextInput 
-              style={styles.input} 
-              placeholder="CPF ou E-mail" 
+            <TextInput
+              style={styles.input}
+              placeholder="CPF ou E-mail"
               placeholderTextColor="#A0A0A0"
+              autoCapitalize="none"
+              value={identificador}
+              onChangeText={setIdentificador}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Feather name="lock" size={20} color="#00C5D6" style={styles.icon} />
-            <TextInput 
-              style={styles.input} 
-              placeholder="Senha" 
-              secureTextEntry={true} 
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              secureTextEntry={!mostrarSenha}
               placeholderTextColor="#A0A0A0"
+              value={senha}
+              onChangeText={setSenha}
             />
-            <Feather name="eye-off" size={20} color="#A0A0A0" />
+            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+              <Feather name={mostrarSenha ? 'eye' : 'eye-off'} size={20} color="#A0A0A0" />
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity>
             <Text style={styles.forgotPassword}>Esqueci minha senha</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} activeOpacity={0.8}>
-            <Text style={styles.buttonText}>Entrar</Text>
+          <TouchableOpacity
+            style={[styles.button, carregando && styles.buttonDisabled]}
+            onPress={handleLogin}
+            disabled={carregando}
+            activeOpacity={0.8}
+          >
+            {carregando ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.buttonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
         </View>
 
-        {/* Rodapé */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Não tem conta? </Text>
           <TouchableOpacity onPress={() => router.push('/cadastro')}>
             <Text style={styles.footerLink}>Cadastre-se!</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );
@@ -138,8 +163,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
   },
-  icon: { marginRight: 12 },
-  input: { flex: 1, fontSize: 16, color: '#1E1E1E' },
+  icon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1E1E1E',
+  },
   forgotPassword: {
     color: '#00C5D6',
     textAlign: 'right',
@@ -153,12 +184,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     paddingVertical: 12,
   },
-  footerText: { fontSize: 15, color: '#666666' },
-  footerLink: { fontSize: 15, color: '#FF4D6D', fontWeight: 'bold' },
+  footerText: {
+    fontSize: 15,
+    color: '#666666',
+  },
+  footerLink: {
+    fontSize: 15,
+    color: '#FF4D6D',
+    fontWeight: 'bold',
+  },
 });

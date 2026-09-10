@@ -1,74 +1,139 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Platform,
-  ScrollView,
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  SafeAreaView, StatusBar, Platform, ScrollView, Alert, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import { authService } from '../services/auth';
 
 export default function CadastroScreen() {
   const router = useRouter();
+
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [termosAceitos, setTermosAceitos] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  async function handleCadastro() {
+    if (!nome || !cpf || !email || !senha || !confirmarSenha) {
+      Alert.alert('Atenção', 'Preencha todos os campos');
+      return;
+    }
+    if (senha !== confirmarSenha) {
+      Alert.alert('Atenção', 'As senhas não coincidem');
+      return;
+    }
+    if (!termosAceitos) {
+      Alert.alert('Atenção', 'Você precisa aceitar os termos de uso');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await authService.cadastrar({
+        nome,
+        cpf,
+        email,
+        senha,
+        confirmarSenha,
+        termosAceitos,
+      });
+      Alert.alert('Sucesso', 'Conta criada com sucesso!', [
+        { text: 'OK', onPress: () => router.replace('/') },
+      ]);
+    } catch (error) {
+      Alert.alert('Erro ao cadastrar', error.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
-      {/* Cabeçalho Fixo */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1E1E1E" />
         </TouchableOpacity>
-
         <View style={styles.logoBadge}>
           <Text style={styles.logoBadgeText}>ZELA</Text>
         </View>
-
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Criar Conta</Text>
 
         <View style={styles.inputContainer}>
           <Feather name="user" size={20} color="#00C5D6" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Nome Completo" placeholderTextColor="#A0A0A0" />
+          <TextInput
+            style={styles.input}
+            placeholder="Nome Completo"
+            placeholderTextColor="#A0A0A0"
+            value={nome}
+            onChangeText={setNome}
+          />
         </View>
 
         <View style={styles.inputContainer}>
           <Feather name="credit-card" size={20} color="#00C5D6" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="CPF" keyboardType="numeric" placeholderTextColor="#A0A0A0" />
+          <TextInput
+            style={styles.input}
+            placeholder="CPF"
+            keyboardType="numeric"
+            placeholderTextColor="#A0A0A0"
+            value={cpf}
+            onChangeText={setCpf}
+          />
         </View>
 
         <View style={styles.inputContainer}>
           <Feather name="mail" size={20} color="#00C5D6" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="E-mail" keyboardType="email-address" placeholderTextColor="#A0A0A0" />
+          <TextInput
+            style={styles.input}
+            placeholder="E-mail"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#A0A0A0"
+            value={email}
+            onChangeText={setEmail}
+          />
         </View>
 
         <View style={styles.inputContainer}>
           <Feather name="lock" size={20} color="#00C5D6" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Senha" secureTextEntry={true} placeholderTextColor="#A0A0A0" />
-          <Feather name="eye-off" size={20} color="#A0A0A0" />
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            secureTextEntry={!mostrarSenha}
+            placeholderTextColor="#A0A0A0"
+            value={senha}
+            onChangeText={setSenha}
+          />
+          <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+            <Feather name={mostrarSenha ? 'eye' : 'eye-off'} size={20} color="#A0A0A0" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
           <Feather name="lock" size={20} color="#00C5D6" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Confirmar senha" secureTextEntry={true} placeholderTextColor="#A0A0A0" />
-          <Feather name="eye-off" size={20} color="#A0A0A0" />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirmar senha"
+            secureTextEntry={!mostrarSenha}
+            placeholderTextColor="#A0A0A0"
+            value={confirmarSenha}
+            onChangeText={setConfirmarSenha}
+          />
         </View>
 
-        <TouchableOpacity 
-          style={styles.checkboxContainer} 
+        <TouchableOpacity
+          style={styles.checkboxContainer}
           onPress={() => setTermosAceitos(!termosAceitos)}
           activeOpacity={0.7}
         >
@@ -80,8 +145,17 @@ export default function CadastroScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} activeOpacity={0.8}>
-          <Text style={styles.buttonText}>Cadastrar</Text>
+        <TouchableOpacity
+          style={[styles.button, carregando && styles.buttonDisabled]}
+          onPress={handleCadastro}
+          disabled={carregando}
+          activeOpacity={0.8}
+        >
+          {carregando ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.buttonText}>Cadastrar</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.footer}>
@@ -147,8 +221,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 14,
   },
-  icon: { marginRight: 12 },
-  input: { flex: 1, fontSize: 16, color: '#1E1E1E' },
+  icon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1E1E1E',
+  },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -164,8 +244,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxActive: { backgroundColor: '#00C5D6' },
-  checkboxText: { fontSize: 13, color: '#444444', flex: 1, lineHeight: 18 },
+  checkboxActive: {
+    backgroundColor: '#00C5D6',
+  },
+  checkboxText: {
+    fontSize: 13,
+    color: '#444444',
+    flex: 1,
+    lineHeight: 18,
+  },
   button: {
     height: 52,
     backgroundColor: '#00C5D6',
@@ -174,12 +261,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
   },
-  footerText: { fontSize: 15, color: '#666666' },
-  footerLink: { fontSize: 15, color: '#00C5D6', fontWeight: 'bold' },
+  footerText: {
+    fontSize: 15,
+    color: '#666666',
+  },
+  footerLink: {
+    fontSize: 15,
+    color: '#00C5D6',
+    fontWeight: 'bold',
+  },
 });
